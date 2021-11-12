@@ -207,6 +207,10 @@ while collecting:
                     BaseDado.iloc[actual_item-1, (5 + colocado)] = "Aceito \U00002705 \n" + \
                         BaseDado.iloc[actual_item-1, (5 + colocado)]
                     print(f"{StatusEmpresa} '\u2705'")
+                elif StatusEmpresa == "Adjudicado":
+                    BaseDado.iloc[actual_item-1, (5 + colocado)] = "Adjudicado \U00002705 \n" + \
+                        BaseDado.iloc[actual_item-1, (5 + colocado)]
+                    print(f"{StatusEmpresa} '\u2705'")
 
                 if colocado == vencedor:
                     try:
@@ -264,6 +268,11 @@ def highlight_acepted(s):
     return 'background-color: %s' % color
 
 
+def highlight_awarded(s):
+    color = '#eb38af'
+    return 'background-color: %s' % color
+
+
 BaseDado = BaseDado.style.applymap(
     highlight_price, subset=pd.IndexSlice[list(BaseDado.query(
         'ValorReferência < ValorFornecedor').index), 'ValorFornecedor']
@@ -303,6 +312,21 @@ BaseDado = BaseDado.style.applymap(
 ).applymap(
     highlight_acepted, subset=pd.IndexSlice[list(
         BaseDado[BaseDado['Pos 5'].str.contains("Aceito", na=False)].index), 'Pos 5']
+).applymap(
+    highlight_awarded, subset=pd.IndexSlice[list(
+        BaseDado[BaseDado['Pos 1'].str.contains("Adjudicado", na=False)].index), 'Pos 1']
+).applymap(
+    highlight_awarded, subset=pd.IndexSlice[list(
+        BaseDado[BaseDado['Pos 2'].str.contains("Adjudicado", na=False)].index), 'Pos 2']
+).applymap(
+    highlight_awarded, subset=pd.IndexSlice[list(
+        BaseDado[BaseDado['Pos 3'].str.contains("Adjudicado", na=False)].index), 'Pos 3']
+).applymap(
+    highlight_awarded, subset=pd.IndexSlice[list(
+        BaseDado[BaseDado['Pos 4'].str.contains("Adjudicado", na=False)].index), 'Pos 4']
+).applymap(
+    highlight_awarded, subset=pd.IndexSlice[list(
+        BaseDado[BaseDado['Pos 5'].str.contains("Adjudicado", na=False)].index), 'Pos 5']
 )
 
 BaseDado.to_excel(

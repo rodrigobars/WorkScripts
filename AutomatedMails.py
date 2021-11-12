@@ -3,9 +3,9 @@ import smtplib
 from email.message import EmailMessage
 import pandas as pd
 
-path_mails = input('Insira o caminho do arquivo mails: ')
 email = input('Insira o e-mail \U0001F4E7: ')
 senha = input('Insira a senha \U0001F512: ')
+path_mails = input('Insira o caminho do arquivo mails: ')
 mails = pd.read_table(rf'{path_mails}',
                       delimiter=";", names=["empresa", "e-mail"])
 

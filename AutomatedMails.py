@@ -12,8 +12,8 @@ mails = pd.read_table(rf'{path_mails}',
 EMAIL_ADRESS = email
 EMAIL_PASS = senha
 
-pregao = input("Informe o pregão(Ex: 21/2021): ")
-homologacao = input("Informe a data de homologação(Ex: 30/09/2021): ")
+pregao = input("Informe o pregão(Ex: 21/2022): ")
+homologacao = input("Informe a data de homologação(Ex: 30/09/2022): ")
 objeto = input("Informe o objeto da licitação: ")
 ata = input("Informe o caminho da Ata: ")
 folder_termo = input(
@@ -36,11 +36,12 @@ for empresa in range(len(mails)):
         <br>
         <p>Dessa forma, encaminho a Ata de registro de preços já assinada pelo responsável da PROAD, junto ao Termo de Responsabilidade sobre a Ata, onde somente o Termo de Responsabilidade deve ser devidamente ASSINADO (digitalmente ou não) e CARIMBADO para posterior devolução através deste e-mail. </p>
         <br>
+        <p>Obs: O Termo de Responsabilidade deve permanecer com a mesma data de envio.</p>
+        <br>
         <p>Informo que não é necessário enviar pelos correios e sim somente digitalizada por email.</p>
         <br>
         <p>Por gentileza confirmar o recebimento deste email.</p>
         <br>
-        <blockquote><small><i>Obs: a tag "externa" é devida ao fato da mensagem estar sendo disparada para todas as empresas vencedoras de forma automatizada.</i></small></blockquote>
     </body>
     </html>
     """, subtype='html')

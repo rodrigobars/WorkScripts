@@ -2,15 +2,32 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.service import Service
 from time import sleep
 from datetime import date
 import pyautogui as gui
 import win32com.client as win32
 import os
 
+# Limpando o gen.py antes de ocorrer erro
+os.system("powershell Remove-Item -path $env:LOCALAPPDATA\Temp\gen_py -recurse")
+os.system("cls")
+
 ################################
 # Consertando o documento Word #
 ################################
+
+input("""
+////////////////////////////////////////////////////////////////////////////
+///                                                                      ///
+///                           \U000026A0  Atenção!!! \U000026A0                            ///
+///                                                                      ///
+/// Certifique-se de excluir a 'tabela modelo' de itens presente na ata. ///
+///                                                                      ///
+/// para continuar, pressione qualquer tecla...                          ///
+///                                                                      ///
+////////////////////////////////////////////////////////////////////////////
+""")
 
 
 def actual_month():
@@ -32,9 +49,9 @@ def actual_month():
 
 
 def buildWord():
-    ata_path = input("Insira o caminho da Ata: ")
-    dou = input("Resultado do dou: ")+','
-    term_path = input("Insira o caminho do Termo: ")
+    dou = input("\nResultado do dou (Ex: 01/01/2000): ")+','
+    ata_path = input("\nInsira o caminho da Ata: ")
+    term_path = input("\nInsira o caminho do Termo: ")
     # Abrindo o programa Word e setando a visibilidade como verdadeira
     word = win32.gencache.EnsureDispatch('Word.Application')
     word.Visible = True
@@ -44,7 +61,7 @@ def buildWord():
     gui.getWindowsWithTitle('Word')[0].minimize()
 
     # Apagando a tabela que vem por padrão
-    wordDoc.Tables(1).Delete()
+    # wordDoc.Tables(1).Delete()
 
     # Consertando os títulos
     wordDoc.Content.GoTo(3, 1, 1).Select()
@@ -91,8 +108,9 @@ def runStartWork(wordDoc):
     url = "http://comprasnet.gov.br/livre/pregao/ata0.asp"
 
     # Informando o Path para o arquivo "chromedriver.exe" e armazenando em "driver"
-    driver = webdriver.Chrome(
-        r"E:\Programacao\Python Scripts\chromedriver.exe")
+    ser = Service(r"F:\Área de trabalho\GitHub\chromedriver.exe")
+    op = webdriver.ChromeOptions()
+    driver = webdriver.Chrome(service=ser, options=op)
 
     # Abrindo o google chrome no site informado
     driver.get(url)
@@ -144,6 +162,8 @@ def runStartWork(wordDoc):
                 return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;}
             '''
         )
+
+        sleep(1)
 
         # Preciso checar quantos itens a empresa tem...
         indexStartEnd = driver.execute_script(f"""
@@ -222,10 +242,11 @@ def runStartWork(wordDoc):
     driver.quit()
 
     # Formatando as tabelas removendo colunas desnecessárias
-    num_tables = wordDoc.Tables.__len__()
+    # num_tables = wordDoc.Tables.__len__()
+
 
     # Varredura de colunas
-    for i in range(1, num_tables+1):
+    for i in range(1, num_companys+1):
         actual_table = wordDoc.Tables(i)
         endOfTable = False
         line = 3
@@ -241,7 +262,7 @@ def runStartWork(wordDoc):
                 actual_table.Cell(line, 4).Merge(
                     wordDoc.Tables(i).Cell(line, 5))
                 actual_table.Cell(line+1, 0).Range.Select()
-                gui.hotkey('ctrl', 'q')
+                gui.hotkey('ctrl', 'l')
                 line += 2
             except:
                 endOfTable = True
@@ -252,7 +273,10 @@ def runStartWork(wordDoc):
             border.LineStyle = 21
 
         # Formatando as informações de cada empresa
-        companyInfoDisplay = f"RAZÃO SOCIAL: {list(companyInfo.values())[abs(num_tables-i)]} \nCNPJ: {list(companyInfo.keys())[abs(num_tables-i)]} \nENDEREÇO: , CEP: \nTELEFONE: \nE-MAIL: \nDADOS BANCARIOS: \nREPRESENTANTE: , CPF: "
+        companyInfoDisplay = f"RAZÃO SOCIAL: {list(companyInfo.values())[abs(num_companys-i)]} \nCNPJ: {list(companyInfo.keys())[abs(num_companys-i)]} \nENDEREÇO: , CEP: \nTELEFONE: \nE-MAIL: \nDADOS BANCARIOS: \nREPRESENTANTE: , CPF: "
+
+
+        #companyInfoDisplay = f"RAZÃO SOCIAL: {list(companyInfo.values())[abs(num_tables-i)]} \nCNPJ: {list(companyInfo.keys())[abs(num_tables-i)]} \nENDEREÇO: , CEP: \nTELEFONE: \nE-MAIL: \nDADOS BANCARIOS: \nREPRESENTANTE: , CPF: "
 
         actual_table = wordDoc.Tables(i)
         actual_table.Cell(1, 1).Range.Delete()
@@ -288,46 +312,67 @@ def buildTerms(companyInfo, term_path):
 
     for key, value in companyInfo.items():
         print(key, value)
-        wordDoc = word.Documents.Open(rf'{term_path}')
-
+        sleep(1)
         # Lembrando que a procura parte de onde o cursos está para frente, por isso é necessário colocá-lo no início
         # Removendo parte do título
-        sleep(5)
-        wordDoc.Content.GoTo(3, 1, 1).Select()
-        find = word.Selection.Find
-        find.Text = "ANEXO IV DO EDITAL DO "
-        find.Replacement.Text = " "
-        find.Execute(Replace=1, Forward=True)
-        sleep(5)
-        # Preenchendo com o nome da empresa
-        wordDoc.Content.GoTo(3, 1, 1).Select()
-        find.Text = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-        find.Replacement.Text = f"{value}"
-        find.Replacement.Highlight = False
-        find.Execute(Replace=1, Forward=True)
+        if key == list(companyInfo.keys())[0]:
+            wordDoc = word.Documents.Open(rf'{term_path}')  
+            sleep(1)
+            wordDoc.Content.GoTo(3, 1, 1).Select()
+            find = word.Selection.Find
+            find.Text = "ANEXO IV DO EDITAL DO "
+            find.Replacement.Text = " "
+            find.Execute(Replace=1, Forward=True)
+            sleep(1)
+            # Preenchendo com o nome da empresa
+            wordDoc.Content.GoTo(3, 1, 1).Select()
+            find.Text = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            find.Replacement.Text = f"{value}"
+            find.Replacement.Highlight = False
+            find.Execute(Replace=1, Forward=True)
+            sleep(1)
+            # Preenchendo com o cnpj da empresa
+            wordDoc.Content.GoTo(3, 1, 1).Select()
+            find.Text = "XXXXXXXXXXXXXXXXXXXXXXX"
+            find.Replacement.Text = f"{key}"
+            find.Replacement.Highlight = False
+            find.Execute(Replace=1, Forward=True)
 
-        # Preenchendo com o cnpj da empresa
-        wordDoc.Content.GoTo(3, 1, 1).Select()
-        find.Text = "XXXXXXXXXXXXXXXXXXXXXXX"
-        find.Replacement.Text = f"{key}"
-        find.Replacement.Highlight = False
-        find.Execute(Replace=1, Forward=True)
+            # Preenchendo com dia de hoje
+            wordDoc.Content.GoTo(3, 1, 1).Select()
+            find.Text = "____"
+            find.Replacement.Text = f"{date.today().day}"
+            find.Execute(Replace=1, Forward=True)
 
-        # Preenchendo com dia de hoje
-        wordDoc.Content.GoTo(3, 1, 1).Select()
-        find.Text = "____"
-        find.Replacement.Text = f"{date.today().day}"
-        find.Execute(Replace=1, Forward=True)
-
-        # Preenchendo com o mês de hoje
-        wordDoc.Content.GoTo(3, 1, 1).Select()
-        find.Text = "___________"
-        find.Replacement.Text = f"{actual_month()}"
-        find.Execute(Replace=1, Forward=True)
-
-        wordDoc.SaveAs2(
-            rf"{os.path.dirname(term_path)}\\{' '.join(value.split()[0:2]).upper()}", 16)
-        wordDoc.Close()
+            # Preenchendo com o mês de hoje
+            wordDoc.Content.GoTo(3, 1, 1).Select()
+            find.Text = "___________"
+            find.Replacement.Text = f"{actual_month()}"
+            find.Execute(Replace=1, Forward=True)
+            sleep(1)
+            wordDoc.SaveAs2(
+                rf"{os.path.dirname(term_path)}\\{' '.join(value.split()[0:2]).upper()}", 16)
+        else:
+            # Preenchendo com o nome da empresa
+            wordDoc.Content.GoTo(3, 1, 1).Select()
+            find.Text = valueAux
+            find.Replacement.Text = f"{value}"
+            find.Replacement.Highlight = False
+            find.Execute(Replace=1, Forward=True)
+            sleep(1)
+            # Preenchendo com o cnpj da empresa
+            wordDoc.Content.GoTo(3, 1, 1).Select()
+            find.Text = keyAux
+            find.Replacement.Text = f"{key}"
+            find.Replacement.Highlight = False
+            find.Execute(Replace=1, Forward=True)
+            sleep(1)
+            wordDoc.SaveAs2(
+                rf"{os.path.dirname(term_path)}\\{' '.join(value.split()[0:2]).upper()}", 16)
+            sleep(1)
+        keyAux = key
+        valueAux = value
+            
 
     with open(rf"{os.path.dirname(term_path)}\\mails.txt", 'w') as mails:
         for companyName in companyInfo.values():
@@ -337,7 +382,7 @@ def buildTerms(companyInfo, term_path):
 
 
 if __name__ == '__main__':
-    Pregao = str(input("Digite o número do pregão(Ex:012021): "))
+    Pregao = str(input("Digite o número do pregão (Ex: 12000): "))
     wordDocTerm = buildWord()
     companyInfo = runStartWork(
         wordDoc=wordDocTerm[0])

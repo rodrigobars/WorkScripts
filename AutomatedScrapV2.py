@@ -1,14 +1,19 @@
 import pandas as pd
+from openpyxl.reader.excel import load_workbook
+from openpyxl.utils import get_column_letter
+from openpyxl.styles import Alignment
+from openpyxl.styles.borders import Border, Side
+from openpyxl.styles import Font
+from openpyxl.styles import PatternFill
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from time import sleep
 from selenium.webdriver.chrome.service import Service
+from time import sleep
 
 # Importando a planilha modelo
 Path = input("Insira o caminho da planilha.: ")
-Path2 = input("Insira o caminho onde a nova planilha será salva.: ")
 BaseDado = pd.read_excel(rf'{Path}')
 
 # Criando colunas vazias no DataFrame
@@ -79,7 +84,7 @@ item, collecting, page, n = [1, True, 0, len(BaseDado.iloc[:, 0])]
 
 while collecting:
     actual_item = (page)*100+item
-    print(f'\n\n\n\n \U0001F40D Buscando pelo item: {actual_item}\n\n')
+    print(f'\n\n\n\n \U0001F3F8 Buscando pelo item: {actual_item}\n\n')
 
     Vencedores = wdw2.until(
         EC.presence_of_element_located(
@@ -242,9 +247,9 @@ while collecting:
             driver.execute_script("javascript:PaginarItens('Proxima');")
         else:
             item += 1
-        BaseDado.to_excel(
-            f"{Path2}\VENCEDORES-{Pregao}.xlsx", index=False)
+        BaseDado.to_excel(Path, index=False)
 
+driver.quit
 
 def highlight_price(s):
     color = 'red'
@@ -287,52 +292,129 @@ BaseDado = BaseDado.style.applymap(
         BaseDado[BaseDado['Status'] == 'Cancelado no julgamento'].index), 'Status']
 ).applymap(
     highlight_refused, subset=pd.IndexSlice[list(
-        BaseDado[BaseDado['Pos 1'].str.contains("Recusado", na=False)].index), 'Pos 1']
+        BaseDado[BaseDado['Pos 1'].astype(str).str.contains("Recusado", na=False)].index), 'Pos 1']
 ).applymap(
     highlight_refused, subset=pd.IndexSlice[list(
-        BaseDado[BaseDado['Pos 2'].str.contains("Recusado", na=False)].index), 'Pos 2']
+        BaseDado[BaseDado['Pos 2'].astype(str).str.contains("Recusado", na=False)].index), 'Pos 2']
 ).applymap(
     highlight_refused, subset=pd.IndexSlice[list(
-        BaseDado[BaseDado['Pos 3'].str.contains("Recusado", na=False)].index), 'Pos 3']
+        BaseDado[BaseDado['Pos 3'].astype(str).str.contains("Recusado", na=False)].index), 'Pos 3']
 ).applymap(
     highlight_refused, subset=pd.IndexSlice[list(
-        BaseDado[BaseDado['Pos 4'].str.contains("Recusado", na=False)].index), 'Pos 4']
+        BaseDado[BaseDado['Pos 4'].astype(str).str.contains("Recusado", na=False)].index), 'Pos 4']
 ).applymap(
     highlight_refused, subset=pd.IndexSlice[list(
-        BaseDado[BaseDado['Pos 5'].str.contains("Recusado", na=False)].index), 'Pos 5']
+        BaseDado[BaseDado['Pos 5'].astype(str).str.contains("Recusado", na=False)].index), 'Pos 5']
 ).applymap(
     highlight_acepted, subset=pd.IndexSlice[list(
-        BaseDado[BaseDado['Pos 1'].str.contains("Aceito", na=False)].index), 'Pos 1']
+        BaseDado[BaseDado['Pos 1'].astype(str).str.contains("Aceito", na=False)].index), 'Pos 1']
 ).applymap(
     highlight_acepted, subset=pd.IndexSlice[list(
-        BaseDado[BaseDado['Pos 2'].str.contains("Aceito", na=False)].index), 'Pos 2']
+        BaseDado[BaseDado['Pos 2'].astype(str).str.contains("Aceito", na=False)].index), 'Pos 2']
 ).applymap(
     highlight_acepted, subset=pd.IndexSlice[list(
-        BaseDado[BaseDado['Pos 3'].str.contains("Aceito", na=False)].index), 'Pos 3']
+        BaseDado[BaseDado['Pos 3'].astype(str).str.contains("Aceito", na=False)].index), 'Pos 3']
 ).applymap(
     highlight_acepted, subset=pd.IndexSlice[list(
-        BaseDado[BaseDado['Pos 4'].str.contains("Aceito", na=False)].index), 'Pos 4']
+        BaseDado[BaseDado['Pos 4'].astype(str).str.contains("Aceito", na=False)].index), 'Pos 4']
 ).applymap(
     highlight_acepted, subset=pd.IndexSlice[list(
-        BaseDado[BaseDado['Pos 5'].str.contains("Aceito", na=False)].index), 'Pos 5']
+        BaseDado[BaseDado['Pos 5'].astype(str).str.contains("Aceito", na=False)].index), 'Pos 5']
 ).applymap(
     highlight_awarded, subset=pd.IndexSlice[list(
-        BaseDado[BaseDado['Pos 1'].str.contains("Adjudicado", na=False)].index), 'Pos 1']
+        BaseDado[BaseDado['Pos 1'].astype(str).str.contains("Adjudicado", na=False)].index), 'Pos 1']
 ).applymap(
     highlight_awarded, subset=pd.IndexSlice[list(
-        BaseDado[BaseDado['Pos 2'].str.contains("Adjudicado", na=False)].index), 'Pos 2']
+        BaseDado[BaseDado['Pos 2'].astype(str).str.contains("Adjudicado", na=False)].index), 'Pos 2']
 ).applymap(
     highlight_awarded, subset=pd.IndexSlice[list(
-        BaseDado[BaseDado['Pos 3'].str.contains("Adjudicado", na=False)].index), 'Pos 3']
+        BaseDado[BaseDado['Pos 3'].astype(str).str.contains("Adjudicado", na=False)].index), 'Pos 3']
 ).applymap(
     highlight_awarded, subset=pd.IndexSlice[list(
-        BaseDado[BaseDado['Pos 4'].str.contains("Adjudicado", na=False)].index), 'Pos 4']
+        BaseDado[BaseDado['Pos 4'].astype(str).str.contains("Adjudicado", na=False)].index), 'Pos 4']
 ).applymap(
     highlight_awarded, subset=pd.IndexSlice[list(
-        BaseDado[BaseDado['Pos 5'].str.contains("Adjudicado", na=False)].index), 'Pos 5']
+        BaseDado[BaseDado['Pos 5'].astype(str).str.contains("Adjudicado", na=False)].index), 'Pos 5']
 )
 
-BaseDado.to_excel(
-    f"{Path2}\VENCEDORES-{Pregao}.xlsx", index=False)
+BaseDado.to_excel(Path, index=False)
 
-print("Extração Concluída \U0001F7E2")
+print('\nExtração Concluída \U0001F7E2')
+print('\nIniciando a estruturação da planilha... \U000023F3')
+
+####### INÍCIO DO OPENPYXL ########
+
+wb = load_workbook(filename = rf'{Path}')
+
+ws = wb.active
+
+ws['C1'] = "UNIDADE"
+ws['D1'] = "QUANTIDADE (PROAES)"
+ws['E1'] = "VALOR DE REFERÊNCIA (unitário) (R$)"
+ws['F1'] = "VALOR FIRMAS"
+ws['G1'] = "POSIÇÃO: 1"
+ws['H1'] = "POSIÇÃO: 2"
+ws['I1'] = "POSIÇÃO: 3"
+ws['J1'] = "POSIÇÃO: 4"
+ws['K1'] = "POSIÇÃO: 5"
+
+ws.sheet_view.zoomScale = 70
+
+thin_border = Border(left=Side(style='thin'), 
+                     right=Side(style='thin'), 
+                     top=Side(style='thin'), 
+                     bottom=Side(style='thin'))
+
+# ao inserir, tratar as colunas como números iniciando em 1
+def modify(index, ByRow=False, hOrientation='left', vOrientation='top', wrap_text=False, row_space=None, col_space=None, currency=False, border=False, 
+    font_name='Calibri', font_size='10', font_color='000000', font_italic=False, font_bold=False, cell_color=None):
+    if type(index)==int:
+        index = [index]
+    row_count = ws.max_row
+    column_count = ws.max_column
+    for vector in index:
+        if ByRow:
+            for col in range(1, column_count+1):
+                currentCell = ws[f'{get_column_letter(col)}{vector}']
+                currentCell.alignment = Alignment(horizontal = hOrientation, vertical = vOrientation, wrapText=wrap_text)
+                if border==True:
+                    currentCell.border = thin_border
+                ft = Font(name=font_name, size=font_size, color=font_color, italic=font_italic, bold=font_bold)
+                currentCell.font = ft
+                if cell_color is not None:
+                    currentCell.fill = PatternFill("solid", start_color=cell_color)
+                if col_space is not None:
+                    letter = get_column_letter(col)
+                    ws.column_dimensions[letter].width = col_space
+            if row_space is not None:
+                ws.row_dimensions[vector].height = row_space
+        else:
+            for row in range(2, row_count+1):
+                currentCell = ws[f'{get_column_letter(vector)}{row}']
+                currentCell.alignment = Alignment(horizontal = hOrientation, vertical = vOrientation, wrapText=wrap_text)
+                if currency==True:
+                    currentCell.number_format = 'R$ #,##0.00'
+                if border==True:
+                    currentCell.border = thin_border
+                ft = Font(name=font_name, size=font_size, color=font_color, italic=font_italic, bold=font_bold)
+                currentCell.font = ft
+                if cell_color is not None:
+                    currentCell.fill = PatternFill("solid", start_color=cell_color)
+                if row_space is not None:
+                    ws.row_dimensions[row].height = row_space
+            if col_space is not None:
+                letter = get_column_letter(vector)
+                ws.column_dimensions[letter].width = col_space
+            
+
+modify(index=1, ByRow=True, hOrientation='center', vOrientation='center', wrap_text=True, font_bold=True, row_space=60, cell_color='f5425a')
+modify(index=1, hOrientation='center', vOrientation='center', cell_color='A5B0A2', font_bold=True, row_space=140, col_space=7, border=True)
+modify(index=2, border=True, wrap_text=True, col_space=34)
+modify(index=[3, 4], border=True, col_space=14, hOrientation='center', vOrientation='center')
+modify(index=[5, 6], border=True, col_space=14, hOrientation='center', vOrientation='center', currency=True)
+modify(index=[7,8,9,10,11], border=True, col_space=30, hOrientation='center', vOrientation='center', wrap_text=True)
+modify(index=12, border=True, col_space=22, hOrientation='center', vOrientation='center')
+
+wb.save(Path)
+
+print('\nEstruturação Concluida! \U0001F47E')
